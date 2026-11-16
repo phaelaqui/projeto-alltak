@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma ALLTAK - Aceleração e Carreiras</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-neon-blue selection:text-navy-900">
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="app" class="flex-grow flex flex-col">
+
+        <!-- ========================================== -->
+        <!-- SCREEN 1: LOGIN & PORTAL SELECTION         -->
+        <!-- ========================================== -->
+        <section id="loginScreen" class="landing-screen">
+            <div class="landing-orb landing-orb-one"></div><div class="landing-orb landing-orb-two"></div>
+            <header class="landing-topbar">
+                <div class="landing-brand"><img src="alltak-portal-logo.png" alt="ALLTAK Portal"><span>PORTAL CORPORATIVO</span></div>
+                <div class="landing-status"><span class="status-dot"></span> Ambiente interno</div>
+            </header>
+            <main class="landing-main">
+                <div class="landing-intro">
+                    <span class="landing-eyebrow"><i class="fa-solid fa-bolt"></i> ACELERAÇÃO & CARREIRAS</span>
+                    <h1>Seu próximo passo<br><span>começa aqui.</span></h1>
+                    <p>Desenvolvimento, gestão e oportunidades em um só lugar.<br>Escolha seu ambiente para continuar.</p>
+                </div>
+                <div class="portal-grid">
+                    <article class="portal-card portal-admin">
+                        <div class="portal-card-top"><div class="portal-icon"><i class="fa-solid fa-shield-halved"></i></div><span class="portal-number">01</span></div>
+                        <h2>Administrador</h2><p>Controle da plataforma, cadastros, configurações e gestão do catálogo.</p>
+                        <button onclick="openLoginModal('admin')" class="portal-action">Acessar ambiente <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                    </article>
+                    <article class="portal-card portal-gestor">
+                        <div class="portal-card-top"><div class="portal-icon"><i class="fa-solid fa-users-gear"></i></div><span class="portal-number">02</span></div>
+                        <h2>Gestor</h2><p>Acompanhe equipes, feedbacks, reuniões e planos de sucessão.</p>
+                        <button onclick="openLoginModal('gestor')" class="portal-action">Acessar ambiente <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                    </article>
+                    <article class="portal-card portal-colab">
+                        <div class="portal-card-top"><div class="portal-icon"><i class="fa-solid fa-user-graduate"></i></div><span class="portal-number">03</span></div>
+                        <h2>Colaborador</h2><p>Explore treinamentos, acompanhe seu PDI e descubra oportunidades.</p>
+                        <button onclick="openLoginModal('colaborador')" class="portal-action">Acessar ambiente <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                    </article>
+                </div>
+                <div class="landing-bottom"><span><i class="fa-solid fa-lock"></i> Acesso seguro por perfil</span><span>ALLTAK <b>•</b> Pessoas & Desenvolvimento</span></div>
+            </main>
+        </section>
+
+        <!-- LOGIN MODAL DYNAMIC -->
+        <div id="loginModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+            <div class="glass-panel w-full max-w-md p-6 sm:p-8 rounded-2xl border border-neon-blue/40 shadow-neon relative">
+                <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="text-center mb-6">
+                    <h3 id="modalRoleTitle" class="text-2xl font-bold text-white capitalize">Login</h3>
+                    <p class="text-xs text-neon-blue mt-1">Informe suas credenciais para continuar</p>
+                </div>
+                <form onsubmit="handleLogin(event)" class="space-y-4">
+                    <input type="hidden" id="loginRoleInput">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Usuário / E-mail</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-envelope absolute left-3 top-3.5 text-gray-500 text-sm"></i>
+                            <input type="text" id="loginUser" required placeholder="ex: usuario@alltak.com" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Senha</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-500 text-sm"></i>
+                            <input type="password" id="loginPass" required class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        </div>
+                    </div>
+                    <div id="securityCodeGroup" class="hidden">
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Código de segurança</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-shield-halved absolute left-3 top-3.5 text-gray-500 text-sm"></i>
+                            <input type="password" id="loginSecurityCode" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="4 últimos dígitos do CPF" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Digite os 4 últimos números do seu CPF.</p>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-neon-blue to-neon-royal text-navy-900 font-bold rounded-xl hover:opacity-95 transition-opacity shadow-lg shadow-neon-blue/20 uppercase tracking-wider">
+                        Entrar no Painel
+                    </button>
+                </form>
+                <p class="text-center text-xs text-gray-400 mt-5">
+                    Ainda não tem conta?
+                    <button type="button" onclick="openRegisterModal()" class="text-neon-blue font-bold hover:underline">Criar conta</button>
+                </p>
+            </div>
+        </div>
+
+        <!-- MODAL DE CADASTRO REAL -->
+        <div id="registerModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+            <div class="glass-panel w-full max-w-md p-6 sm:p-8 rounded-2xl border border-neon-blue/40 shadow-neon relative">
+                <button type="button" onclick="closeRegisterModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="text-center mb-6">
+                    <h3 class="text-2xl font-bold text-white">Criar conta</h3>
+                    <p class="text-xs text-neon-blue mt-1">Cadastre seu acesso ao ALLTAK</p>
+                </div>
+                <form onsubmit="handleRegister(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Nome completo</label>
+                        <input id="registerName" type="text" required maxlength="100" autocomplete="name" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">E-mail</label>
+                        <input id="registerEmail" type="email" required maxlength="150" autocomplete="email" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Senha (mínimo 8 caracteres)</label>
+                        <input id="registerPassword" type="password" required minlength="8" autocomplete="new-password" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-gradient-to-r from-neon-blue to-neon-royal text-navy-900 font-bold rounded-xl hover:opacity-95 transition-opacity shadow-lg uppercase tracking-wider">Criar minha conta</button>
+                </form>
+                <p class="text-center text-xs text-gray-400 mt-5">Já tem uma conta? <button type="button" onclick="closeRegisterModal(); openLoginModal('colaborador')" class="text-neon-blue font-bold hover:underline">Fazer login</button></p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MAIN DASHBOARD CONTAINER (ADMIN/GESTOR/COLAB)-->
+        <!-- ========================================== -->
+        <div id="dashboardScreen" class="hidden flex-grow flex flex-col">
+            <!-- NAVBAR HEADER -->
+            <header class="bg-navy-800/90 border-b border-neon-blue/20 sticky top-0 z-40 backdrop-blur-md">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"> 
+                    <!-- Brand -->
+                    <div class="flex items-center gap-3">
+                        <img src="alltak-portal-logo.png" alt="ALLTAK" class="alltak-logo-image alltak-logo-nav">
+                        <span id="roleBadge" class="ml-2 text-xs font-bold px-2.5 py-1 rounded-full uppercase bg-neon-blue/20 text-neon-blue border border-neon-blue/30">
+                            Gestor
+                        </span>
+                    </div>
+
+                    <!-- User Info & Logout -->
+                    <div class="flex items-center gap-4">
+                        <div class="text-right hidden sm:block">
+                            <div id="loggedUserName" class="text-sm font-bold text-white">Carlos Eduardo</div>
+                            <div id="loggedUserRole" class="text-xs text-gray-400">Gestor de Operações</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-neon-blue to-neon-royal flex items-center justify-center text-navy-900 font-extrabold shadow-neon">
+                            <span id="userInitials">CE</span>
+                        </div>
+                        <button onclick="logout()" title="Sair do Sistema" class="p-2 text-gray-400 hover:text-neon-blue hover:bg-navy-700 rounded-lg transition-colors">
+                            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SUB-HEADER TAB NAVIGATION -->
+            <nav class="bg-navy-900 border-b border-navy-700 overflow-x-auto scrollbar-none">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1" id="navTabContainer">
+                    <!-- Dynamic Tabs Rendered via JS -->
+                </div>
+            </nav>
+
+            <!-- MAIN CONTENT AREA -->
+            <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+                
+                <!-- ======================================================== -->
+                <!-- ADMIN VIEW CONTENT                                       -->
+                <!-- ======================================================== -->
+                <div id="adminView" class="hidden space-y-6">
+                    <!-- Tab Admin 1: Cadastros Global -->
+                    <div id="adminTab1" class="tab-content space-y-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Gestão Global de Usuários</h2>
+                                <p class="text-sm text-gray-400">Cadastre colaboradores, defina níveis de acesso e vincule cargos.</p>
+                            </div>
+                            <button onclick="openUserModal()" class="px-4 py-2.5 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Novo Colaborador
+                            </button>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden border border-navy-700">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm text-gray-300">
+                                    <thead class="bg-navy-800 text-xs uppercase text-neon-blue border-b border-navy-700">
+                                        <tr>
+                                            <th class="p-4">Nome</th>
+                                            <th class="p-4">E-mail</th>
+                                            <th class="p-4">Perfil</th>
+                                            <th class="p-4">Cargo Actual</th>
+                                            <th class="p-4">Status</th>
+                                            <th class="p-4 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminUsersTable" class="divide-y divide-navy-700">
+                                        <!-- JS dynamic render -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Admin 2: Configurações & Catálogo de Cursos -->
+                    <div id="adminTab2" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Configurações Globais do Catálogo</h2>
+                                <p class="text-sm text-gray-400">Adicione ou atualize treinos e capacitações da ALLTAK.</p>
+                            </div>
+                            <button onclick="openCourseModal()" class="px-4 py-2.5 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Novo Curso
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="adminCoursesGrid">
+                            <!-- Dynamic Render -->
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- ======================================================== -->
+                <!-- GESTOR VIEW CONTENT                                      -->
+                <!-- ======================================================== -->
+                <div id="gestorView" class="hidden space-y-6">
+                    
+                    <!-- TAB G1: CURSOS DISPONÍVEIS GESTORES -->
+                    <div id="gestorTab1" class="tab-content space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <h2 class="text-2xl font-bold text-white">Catálogo de Alta Liderança & Gestão</h2>
+                            <p class="text-sm text-gray-400">Capacitações exclusivas para gestão estratégica, feedback e alta performance.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="gestorCoursesGrid">
+                            <!-- Dynamic rendering from JS -->
+                        </div>
+                    </div>
+
+                    <!-- TAB G2: RELATÓRIO DO CURSO -->
+                    <div id="gestorTab2" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Acompanhamento do Progresso da Equipe</h2>
+                                <p class="text-sm text-gray-400">Métricas e engajamento nos treinamentos corporativos.</p>
+                            </div>
+                            <!-- Filter -->
+                            <div class="flex items-center gap-3">
+                                <label class="text-xs text-gray-400">Filtrar por Colaborador:</label>
+                                <select id="filterRelatorioColab" onchange="renderRelatorioCursos()" class="bg-navy-900 border border-navy-600 text-white rounded-xl text-xs py-2 px-3 focus:outline-none focus:border-neon-blue">
+                                    <option value="ALL">Todos os Colaboradores</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Summary KPI Cards -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="glass-panel p-5 rounded-2xl border border-neon-blue/30 flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase font-semibold">Cursos Concluídos</div>
+                                    <div class="text-3xl font-black text-white mt-1" id="kpiConcluidos">12</div>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-5 rounded-2xl border border-neon-blue/30 flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase font-semibold">Em Andamento</div>
+                                    <div class="text-3xl font-black text-white mt-1" id="kpiAndamento">5</div>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-spinner"></i>
+                                </div>
+                            </div>
+                            <div class="glass-panel p-5 rounded-2xl border border-neon-blue/30 flex items-center justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-400 uppercase font-semibold">Taxa de Aritmética</div>
+                                    <div class="text-3xl font-black text-neon-blue mt-1" id="kpiMédia">78%</div>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-neon-blue/10 text-neon-blue flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-chart-line"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Detail Table -->
+                        <div class="glass-panel rounded-2xl border border-navy-700 overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm text-gray-300">
+                                    <thead class="bg-navy-800 text-xs uppercase text-neon-blue border-b border-navy-700">
+                                        <tr>
+                                            <th class="p-4">Colaborador</th>
+                                            <th class="p-4">Curso</th>
+                                            <th class="p-4">Carga Horária</th>
+                                            <th class="p-4">Progresso</th>
+                                            <th class="p-4">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gestorRelatorioTable" class="divide-y divide-navy-700">
+                                        <!-- JS Render -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB G3: ATA DE REUNIÕES E EVENTOS -->
+                    <div id="gestorTab3" class="tab-content hidden space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Form (1 col) -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-white border-b border-navy-700 pb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-pen-to-square text-neon-blue"></i> Registrar Nova Ata
+                                </h3>
+                                <form onsubmit="handleSaveAta(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Título / Assunto Principal</label>
+                                        <input type="text" id="ataTitulo" required class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Data e Hora</label>
+                                            <input type="datetime-local" id="ataData" required class="w-full bg-navy-900 border border-navy-600 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-blue">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Prioridade</label>
+                                            <select id="ataPrioridade" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-blue">
+                                                <option value="Alta">Alta</option>
+                                                <option value="Média" selected>Média</option>
+                                                <option value="Baixa">Baixa</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Colaboradores Presentes</label>
+                                        <input type="text" id="ataPresentes" placeholder="ex: Ana Silva, Bruno Souza" required class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Atas de Decisões & Deliberações</label>
+                                        <textarea id="ataDecisoes" rows="3" required placeholder="Pontos discutidos e acordados..." class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Compromissos e Prazos</label>
+                                        <textarea id="ataCompromissos" rows="2" placeholder="Responsável X entregar até dia Y" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Próxima Reunião Agendada</label>
+                                        <input type="date" id="ataProxima" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <button type="submit" class="w-full py-3 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors">
+                                        Salvar Ata de Reunião
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- List (2 cols) -->
+                            <div class="lg:col-span-2 space-y-4">
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-list-check text-neon-blue"></i> Histórico de Atas Registradas
+                                </h3>
+                                <div id="atasListContainer" class="space-y-4">
+                                    <!-- JS Render -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB G4: FEEDBACKS -->
+                    <div id="gestorTab4" class="tab-content hidden space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Form -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-white border-b border-navy-700 pb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-comment-dots text-neon-blue"></i> Novo Feedback 360°
+                                </h3>
+                                <form onsubmit="handleSaveFeedback(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Colaborador</label>
+                                        <select id="fbColaborador" required class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                            <!-- Dynamic list -->
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Pontos Positivos / Destaques</label>
+                                        <textarea id="fbPositivos" rows="2" required placeholder="Elogios e conquistas recentes..." class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Pontos de Melhoria</label>
+                                        <textarea id="fbMelhorias" rows="2" required placeholder="Oportunidades de aperfeiçoamento..." class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Competências Observadas</label>
+                                        <input type="text" id="fbCompetencias" placeholder="Liderança, Agilidade, Python" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Plano de Ação e Prazos</label>
+                                        <textarea id="fbPlanoAcao" rows="2" placeholder="Ações concretas e datas limite..." class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Reconhecimento / Insígnia</label>
+                                        <input type="text" id="fbReconhecimento" placeholder="Ex: Destaque de Inovação Q1" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <button type="submit" class="w-full py-3 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors">
+                                        Enviar Feedback
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Feedbacks list & Curve Chart -->
+                            <div class="lg:col-span-2 space-y-6">
+                                <!-- Chart Performance -->
+                                <div class="glass-panel p-5 rounded-2xl border border-navy-700">
+                                    <h4 class="text-sm font-bold text-white mb-4 flex items-center justify-between">
+                                        <span>Curva de Evolução / Performance Geral</span>
+                                        <span class="text-xs font-normal text-neon-blue">Avaliação Trimestral</span>
+                                    </h4>
+                                    <div class="h-48 w-full">
+                                        <canvas id="feedbackChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <h3 class="text-lg font-bold text-white">Histórico de Evaluções Enviadas</h3>
+                                <div id="feedbacksListContainer" class="space-y-4">
+                                    <!-- JS Render -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB G5: CARREIRA E SUCESSÃO -->
+                    <div id="gestorTab5" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <h2 class="text-2xl font-bold text-white">Matriz de Carreiras & Plano de Sucessão</h2>
+                            <p class="text-sm text-gray-400">Analise os requisitos para os próximos cargos, interesses mapeados e gaps de competências.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="sucessaoGrid">
+                            <!-- JS Render -->
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- ======================================================== -->
+                <!-- COLABORADOR VIEW CONTENT                                 -->
+                <!-- ======================================================== -->
+                <div id="colaboradorView" class="hidden space-y-6">
+
+                    <!-- TAB C1: PERFIL E OBJETIVOS DE CARREIRA -->
+                    <div id="colabTab1" class="tab-content space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl border border-neon-blue/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-neon-blue to-neon-royal flex items-center justify-center text-navy-900 font-black text-2xl shadow-neon">
+                                    <span id="colabAvatarInitials">AS</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-white" id="colabProfileName">Ana Silva</h2>
+                                    <p class="text-sm text-neon-blue" id="colabProfileRole">Cargo Atual: Desenvolvedora Pleno</p>
+                                    <p class="text-xs text-gray-400 mt-1">Sênioridade: Nível II | Departamento: Engenharia de Software</p>
+                                </div>
+                            </div>
+                            <div class="bg-navy-900/80 p-4 rounded-xl border border-navy-700 w-full md:w-auto">
+                                <div class="text-xs text-gray-400">Status PDI Atual</div>
+                                <div class="text-lg font-bold text-emerald-400">Em Progresso Acelerado</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Competencias Registradas -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-award text-neon-blue"></i> Competências Registradas
+                                </h3>
+                                <div class="flex flex-wrap gap-2" id="colabCompetenciasBadges">
+                                    <!-- Dynamic badges -->
+                                </div>
+                            </div>
+
+                            <!-- Cargo Desejado Editável -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-bullseye text-neon-blue"></i> Objetivos de Carreira
+                                </h3>
+                                <form onsubmit="handleSaveObjetivoCarreira(event)" class="space-y-4">
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Cargo Futuro / Alvo</label>
+                                        <input type="text" id="colabCargoAlvoInput" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Interesse Principal & Motivações</label>
+                                        <textarea id="colabInteresseInput" rows="3" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue"></textarea>
+                                    </div>
+                                    <button type="submit" class="px-4 py-2.5 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors text-xs uppercase tracking-wider">
+                                        Atualizar Objetivos
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Dados pessoais e contato -->
+                        <div class="glass-panel p-6 rounded-2xl border border-neon-blue/30 space-y-4">
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-address-card text-neon-blue mr-2"></i>Dados Pessoais e Contato</h3>
+                                <button type="button" onclick="switchTab('colabTab7','colaborador')" class="px-4 py-2 bg-neon-blue text-navy-900 font-bold rounded-lg text-xs hover:bg-neon-cyan"><i class="fa-solid fa-pen mr-1"></i> Editar informações</button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                                <div><p class="text-gray-400 text-xs mb-1">CPF</p><p id="profileCpf" class="text-white">Não informado</p></div>
+                                <div><p class="text-gray-400 text-xs mb-1">E-mail</p><p id="profileEmail" class="text-white break-all">Não informado</p></div>
+                                <div><p class="text-gray-400 text-xs mb-1">Telefone</p><p id="profilePhone" class="text-white">Não informado</p></div>
+                                <div><p class="text-gray-400 text-xs mb-1">CEP</p><p id="profileCep" class="text-white">Não informado</p></div>
+                                <div><p class="text-gray-400 text-xs mb-1">Cidade</p><p id="profileCity" class="text-white">Não informado</p></div>
+                                <div><p class="text-gray-400 text-xs mb-1">Estado</p><p id="profileState" class="text-white">Não informado</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB C7: EDITAR PERFIL -->
+                    <div id="colabTab7" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-neon-blue/30">
+                            <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-user-pen text-neon-blue mr-2"></i>Editar Perfil</h2>
+                            <p class="text-sm text-gray-400 mt-1">Atualize seus dados pessoais e de contato.</p>
+                        </div>
+                        <form onsubmit="handleSaveProfile(event)" class="glass-panel p-6 rounded-2xl border border-neon-blue/30 space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">CPF</label><input id="editCpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white"></div>
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">E-mail</label><input id="editEmail" type="email" required placeholder="nome@empresa.com" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white"></div>
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Telefone</label><input id="editPhone" type="tel" maxlength="15" placeholder="(11) 99999-9999" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white"></div>
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">CEP</label><input id="editCep" inputmode="numeric" maxlength="9" placeholder="00000-000" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white"></div>
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Cidade</label><input id="editCity" placeholder="Sua cidade" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white"></div>
+                                <div><label class="block text-xs uppercase font-semibold text-gray-400 mb-1">Estado (UF)</label><input id="editState" maxlength="2" placeholder="SP" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white uppercase"></div>
+                            </div>
+                            <div class="flex gap-3 flex-wrap">
+                                <button type="submit" class="px-5 py-3 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan"><i class="fa-solid fa-floppy-disk mr-2"></i>Salvar informações</button>
+                                <button type="button" onclick="switchTab('colabTab1','colaborador')" class="px-5 py-3 bg-navy-700 text-white rounded-xl border border-navy-600">Cancelar</button>
+                            </div>
+                        </form>
+                        <p class="text-xs text-amber-300"><i class="fa-solid fa-lock mr-1"></i> CPF é dado pessoal: em produção, restrinja acesso e proteja armazenamento/transmissão.</p>
+                    </div>
+
+                    <!-- TAB C2: PLANO DE CARREIRA -->
+                    <div id="colabTab2" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <h2 class="text-2xl font-bold text-white">Seu Guia de Crescimento e Trilha de Carreira</h2>
+                            <p class="text-sm text-gray-400">Acompanhe os requisitos técnicos e comportamentais para alcançar seu próximo nível.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="colabTrilhasContainer">
+                            <!-- JS Dynamic content -->
+                        </div>
+                    </div>
+
+                    <!-- TAB C3: CURSOS E TREINAMENTOS -->
+                    <div id="colabTab3" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Meus Cursos e Capacitações</h2>
+                                <p class="text-sm text-gray-400">Acesse seus treinamentos matriculados e baixe certificados.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="colabCursosGrid">
+                            <!-- JS Dynamic render -->
+                        </div>
+                    </div>
+
+                    <!-- TAB C4: PROJETOS INTERNOS -->
+                    <div id="colabTab4" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <h2 class="text-2xl font-bold text-white">Oportunidades e Projetos Internos</h2>
+                            <p class="text-sm text-gray-400">Participe de squads transversais e adquira prática real para aceleração da sua carreira.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="colabProjetosGrid">
+                            <!-- JS Render -->
+                        </div>
+                    </div>
+
+                    <!-- TAB C5: FEEDBACKS E MENTORIAS -->
+                    <div id="colabTab5" class="tab-content hidden space-y-6">
+                        <div class="bg-navy-800 p-6 rounded-2xl border border-navy-700">
+                            <h2 class="text-2xl font-bold text-white">Histórico de Feedbacks & Mentorias</h2>
+                            <p class="text-sm text-gray-400">Consulte orientações recebidas dos seus gestores e notas de reuniões de mentoria.</p>
+                        </div>
+
+                        <div class="space-y-4" id="colabFeedbacksHistory">
+                            <!-- JS Dynamic -->
+                        </div>
+                    </div>
+
+                    <!-- TAB C6: PROGRESSO NO PDI -->
+                    <div id="colabTab6" class="tab-content hidden space-y-6">
+                        <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-white">Plano de Desenvolvimento Individual (PDI)</h2>
+                                    <p class="text-sm text-gray-400">Checklist de metas e prazos pactuados com a liderança.</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-3xl font-black text-neon-blue" id="pdiPercentageText">60%</div>
+                                    <div class="text-xs text-gray-400">Progresso Geral</div>
+                                </div>
+                            </div>
+                            <!-- Bar -->
+                            <div class="w-full bg-navy-900 rounded-full h-4 overflow-hidden border border-navy-600">
+                                <div id="pdiProgressBar" class="bg-gradient-to-r from-neon-blue to-neon-royal h-full transition-all duration-500" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Checklist Atingidos -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-check"></i> Requisitos Atingidos / Concluídos
+                                </h3>
+                                <ul id="pdiDoneList" class="space-y-3 text-sm text-gray-300">
+                                    <!-- Dynamic -->
+                                </ul>
+                            </div>
+
+                            <!-- Checklist Pendentes -->
+                            <div class="glass-panel p-6 rounded-2xl border border-navy-700 space-y-4">
+                                <h3 class="text-lg font-bold text-amber-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-clock"></i> Requisitos Pendentes / Em Foco
+                                </h3>
+                                <ul id="pdiPendingList" class="space-y-3 text-sm text-gray-300">
+                                    <!-- Dynamic -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            
+                <!-- INTEGRIDADE CORPORATIVA: LEGISLAÇÃO E CANAL DE ÉTICA -->
+                <div id="integrityView" class="hidden space-y-6">
+                    <div class="bg-navy-800 p-6 rounded-2xl border border-neon-blue/30">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fa-solid fa-shield-halved text-neon-blue text-2xl"></i>
+                            <h2 class="text-2xl font-bold text-white">Integridade Corporativa</h2>
+                        </div>
+                        <p class="text-sm text-gray-400">Consulte orientações trabalhistas e utilize o canal para comunicar situações que precisam de atenção.</p>
+                    </div>
+
+                    <section class="space-y-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-book-open text-neon-blue"></i> Legislação Trabalhista</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <a href="https://www.planalto.gov.br/ccivil_03/decreto-lei/del5452.htm" target="_blank" rel="noopener noreferrer" class="glass-panel p-5 rounded-xl border border-navy-700 hover:border-neon-blue transition-colors">
+                                <h4 class="font-bold text-white mb-2">CLT — Consolidação das Leis do Trabalho</h4>
+                                <p class="text-sm text-gray-400">Consulte o texto oficial da legislação trabalhista.</p>
+                                <span class="text-neon-blue text-xs mt-3 inline-block">Abrir legislação <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></span>
+                            </a>
+                            <a href="https://www.gov.br/trabalho-e-emprego/pt-br" target="_blank" rel="noopener noreferrer" class="glass-panel p-5 rounded-xl border border-navy-700 hover:border-neon-blue transition-colors">
+                                <h4 class="font-bold text-white mb-2">Ministério do Trabalho e Emprego</h4>
+                                <p class="text-sm text-gray-400">Acesse orientações e serviços oficiais.</p>
+                                <span class="text-neon-blue text-xs mt-3 inline-block">Abrir portal <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></span>
+                            </a>
+                            <a href="https://www.gov.br/pt-br/servicos/realizar-denuncia-trabalhista" target="_blank" rel="noopener noreferrer" class="glass-panel p-5 rounded-xl border border-navy-700 hover:border-neon-blue transition-colors">
+                                <h4 class="font-bold text-white mb-2">Denúncia Trabalhista Oficial</h4>
+                                <p class="text-sm text-gray-400">Canal público do Governo Federal para denúncia trabalhista.</p>
+                                <span class="text-neon-blue text-xs mt-3 inline-block">Acessar serviço <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></span>
+                            </a>
+                        </div>
+                    </section>
+
+                    <section class="glass-panel p-6 rounded-2xl border border-neon-blue/30 space-y-4">
+                        <div>
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2"><i class="fa-solid fa-comments text-neon-blue"></i> Canal de Ética</h3>
+                            <p class="text-sm text-gray-400 mt-1">Relate assédio, discriminação, fraude, conflito de interesses ou outra conduta inadequada.</p>
+                        </div>
+                        <form id="ethicsForm" onsubmit="submitEthicsReport(event)" class="space-y-4">
+                            <label class="flex items-center gap-3 bg-navy-900/70 p-3 rounded-xl border border-navy-700">
+                                <input id="ethicsAnonymous" type="checkbox" class="rounded bg-navy-900 border-navy-600 text-neon-blue focus:ring-0">
+                                <span class="text-sm text-gray-200">Enviar relato anonimamente</span>
+                            </label>
+                            <div id="ethicsIdentityFields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Nome (opcional)</label>
+                                    <input id="ethicsName" type="text" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue" placeholder="Seu nome">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">E-mail (opcional)</label>
+                                    <input id="ethicsEmail" type="email" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue" placeholder="seu@email.com">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Tipo de relato</label>
+                                    <select id="ethicsCategory" required class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue">
+                                        <option value="">Selecione...</option>
+                                        <option>Assédio moral</option><option>Assédio sexual</option><option>Discriminação</option>
+                                        <option>Fraude ou corrupção</option><option>Conflito de interesses</option><option>Violação de políticas</option><option>Outro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Local / área (opcional)</label>
+                                    <input id="ethicsLocation" type="text" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue" placeholder="Departamento, unidade ou local">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Descreva o ocorrido</label>
+                                <textarea id="ethicsDescription" required minlength="20" rows="5" class="w-full bg-navy-900 border border-navy-600 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-neon-blue" placeholder="Informe fatos, datas e detalhes relevantes (mínimo de 20 caracteres)."></textarea>
+                            </div>
+                            <p class="text-xs text-amber-300"><i class="fa-solid fa-circle-info mr-1"></i> Protótipo: este formulário ainda não envia denúncias a uma equipe real nem garante anonimato técnico. Não informe dados sensíveis neste ambiente de demonstração.</p>
+                            <button type="submit" class="px-5 py-3 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors"><i class="fa-solid fa-paper-plane mr-2"></i>Registrar relato (simulação)</button>
+                        </form>
+                        <div id="ethicsProtocol" class="hidden bg-navy-900 p-4 rounded-xl border border-emerald-500/30 text-emerald-300 text-sm"></div>
+                    </section>
+                </div>
+
+</main>
+        </div>
+    </div>
+
+    <!-- CERTIFICATE MODAL -->
+    <div id="certificateModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-panel w-full max-w-2xl p-8 rounded-2xl border-2 border-neon-blue/60 relative text-center space-y-6">
+            <button onclick="closeCertModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="inline-block p-3 bg-neon-blue/10 rounded-full border border-neon-blue/30 text-neon-blue mb-2">
+                <i class="fa-solid fa-award text-4xl"></i>
+            </div>
+            <h2 class="text-2xl font-black text-white tracking-widest uppercase">CERTIFICADO DE CONCLUSÃO</h2>
+            <p class="text-xs text-gray-400">A plataforma <strong class="text-neon-blue">ALLTAK ACELERAÇÃO & CARREIRAS</strong> certifica que</p>
+            <div class="text-2xl font-bold text-neon-blue border-b border-navy-600 pb-2 inline-block px-8" id="certUserName">Ana Silva</div>
+            <p class="text-sm text-gray-300">concluiu com êxito e aproveitamento máximo o treinamento corporativo de</p>
+            <div class="text-xl font-extrabold text-white" id="certCourseTitle">Liderança Híbrida e Gestão de Equipes</div>
+            <div class="flex justify-around items-center text-xs text-gray-400 pt-6 border-t border-navy-700">
+                <div>
+                    <div>Carga Horária: <strong class="text-white" id="certHours">40 hrs</strong></div>
+                    <div>Emissão: <strong class="text-white" id="certDate">19/10/2026</strong></div>
+                </div>
+                <div class="text-neon-blue font-mono font-bold">ALLTAK-VERIFIED-2026</div>
+            </div>
+            <button onclick="showToast('Download do Certificado iniciado em PDF! (Simulado)')" class="px-6 py-2.5 bg-neon-blue text-navy-900 font-bold rounded-xl hover:bg-neon-cyan transition-colors text-sm">
+                <i class="fa-solid fa-download mr-1"></i> Baixar Certificado
+            </button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

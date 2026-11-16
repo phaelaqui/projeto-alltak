@@ -1,0 +1,47 @@
+ALLTAK 
+
+O QUE FOI PREPARADO
+- Backend Node.js + Express.
+- Conexão MySQL usando mysql2/promise.
+- Cadastro real pelo formulário do portal.
+- Senhas armazenadas com bcrypt (hash, nunca texto puro).
+- Login real consultando a tabela usuarios.
+- Sessões armazenadas no MySQL e cookie httpOnly.
+- Logout e recuperação da sessão ao atualizar a página.
+- O perfil é definido pelo banco; cadastro público cria somente colaborador.
+- O Express serve o próprio portal em http://localhost:3000 para evitar problemas de CORS/cookies.
+
+ANTES DE RODAR
+1. Confira se o MySQL está iniciado e se existe o banco alltak_db.
+2. Confira se a tabela usuarios tem as colunas:
+   id, nome, email, senha, perfil, criado_em
+   (a tabela criada durante o tutorial já tem essa estrutura).
+3. Dentro da pasta backend, crie/edite o arquivo .env usando .env.example como modelo.
+4. Em DB_PASSWORD, coloque a senha root do MySQL no seu computador.
+5. Em SESSION_SECRET, coloque uma chave aleatória longa (32 caracteres ou mais).
+   Não envie o .env para ninguém e não o publique no GitHub.
+
+INSTALAÇÃO E EXECUÇÃO
+1. Abra o terminal do VS Code na pasta ALLTAK/backend.
+2. Execute: npm install
+3. Execute: npm start
+4. Abra no navegador: http://localhost:3000
+   Não abra o index.html diretamente e não use o Live Server para testar o login.
+
+CADASTRO E LOGIN
+- Na tela de login, clique em "Criar conta".
+- Preencha nome, e-mail e senha com pelo menos 8 caracteres.
+- Novos cadastros recebem perfil colaborador automaticamente.
+- Para entrar, use o e-mail e a senha cadastrados.
+
+ADMINISTRADOR E GESTOR
+Não existe seleção pública de perfil privilegiado. Para promover uma conta, faça isso manualmente no MySQL, depois de confirmar que a conta pertence à pessoa correta. Exemplo (troque o e-mail pelo e-mail correto):
+
+UPDATE usuarios SET perfil = 'admin' WHERE email = 'email-confiavel@empresa.com';
+
+Para gestor, use perfil = 'gestor'. Nunca permita que um formulário público escolha admin.
+
+OBSERVAÇÕES IMPORTANTES
+- A autenticação e as sessões agora são reais.
+- Outros módulos do portal ainda usam dados demonstrativos guardados no localStorage. Eles não foram migrados para o MySQL nesta etapa.
+- Em produção, use HTTPS, defina cookie.secure=true, configure backup, permissões e proteção adicional contra tentativas repetidas de login.
