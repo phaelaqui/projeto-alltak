@@ -76,16 +76,19 @@
                         <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Usuário / E-mail</label>
                         <div class="relative">
                             <i class="fa-solid fa-envelope absolute left-3 top-3.5 text-gray-500 text-sm"></i>
-                            <input type="text" id="loginUser" required placeholder="ex: usuario@alltak.com" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                            <input type="email" id="loginUser" required autocomplete="username" placeholder="ex: usuario@alltak.com" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
                         </div>
+                        <p id="loginEmailError" class="hidden mt-2 text-xs text-red-400" role="alert" aria-live="polite"></p>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Senha</label>
                         <div class="relative">
                             <i class="fa-solid fa-lock absolute left-3 top-3.5 text-gray-500 text-sm"></i>
-                            <input type="password" id="loginPass" required class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                            <input type="password" id="loginPass" required autocomplete="current-password" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-neon-blue">
                         </div>
+                        <p id="loginPasswordError" class="hidden mt-2 text-xs text-red-400" role="alert" aria-live="polite"></p>
                     </div>
+                    <p id="loginGeneralError" class="hidden text-xs text-red-400" role="alert" aria-live="polite"></p>
                     <div id="securityCodeGroup" class="hidden">
                         <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Código de segurança</label>
                         <div class="relative">
@@ -123,7 +126,9 @@
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">E-mail</label>
                         <input id="registerEmail" type="email" required maxlength="150" autocomplete="email" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue">
+                        <p id="registerEmailError" class="hidden mt-2 text-xs text-red-400" role="alert" aria-live="polite"></p>
                     </div>
+                    <p id="registerGeneralError" class="hidden text-xs text-red-400" role="alert" aria-live="polite"></p>
                     <div>
                         <label class="block text-xs font-semibold text-gray-300 uppercase mb-2">Senha (mínimo 8 caracteres)</label>
                         <input id="registerPassword" type="password" required minlength="8" autocomplete="new-password" class="w-full bg-navy-900/90 border border-navy-600 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-neon-blue">

@@ -127,6 +127,7 @@ tailwind.config = {
             userInput.value = '';
             passInput.value = '';
             securityInput.value = '';
+            clearLoginErrors();
             // O código de CPF era apenas uma simulação visual; autenticação real usa a senha do banco.
             securityGroup.classList.add('hidden');
             securityInput.required = false;
@@ -150,13 +151,29 @@ tailwind.config = {
             document.getElementById('loginUser').value = '';
             document.getElementById('loginPass').value = '';
             document.getElementById('loginSecurityCode').value = '';
+            clearLoginErrors();
+        }
+
+        function showInlineError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            element.textContent = message || '';
+            element.classList.toggle('hidden', !message);
+        }
+
+        function clearLoginErrors() {
+            ['loginEmailError', 'loginPasswordError', 'loginGeneralError'].forEach(id => showInlineError(id, ''));
         }
 
         async function handleLogin(e) {
             e.preventDefault();
+            clearLoginErrors();
 
             const email = document.getElementById('loginUser').value.trim();
             const senha = document.getElementById('loginPass').value;
+            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Verificando...';
 
             try {
                 const resposta = await fetch('/api/auth/login', {
@@ -169,7 +186,13 @@ tailwind.config = {
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    showToast(dados.mensagem || 'Não foi possível entrar.');
+                    if (resposta.status === 404) {
+                        showInlineError('loginEmailError', dados.mensagem || 'Este e-mail não está cadastrado.');
+                    } else if (resposta.status === 401) {
+                        showInlineError('loginPasswordError', dados.mensagem || 'A senha informada está incorreta.');
+                    } else {
+                        showInlineError('loginGeneralError', dados.mensagem || 'Não foi possível entrar. Tente novamente.');
+                    }
                     return;
                 }
 
@@ -188,7 +211,10 @@ tailwind.config = {
                 showToast('Login realizado com sucesso!');
             } catch (erro) {
                 console.error('Erro no login:', erro);
-                showToast('Não foi possível conectar ao servidor ALLTAK.');
+                showInlineError('loginGeneralError', 'Não foi possível conectar ao servidor. Verifique se o backend está iniciado.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Entrar no Painel';
             }
         }
 
@@ -204,6 +230,8 @@ tailwind.config = {
 
         async function handleRegister(e) {
             e.preventDefault();
+            showInlineError('registerEmailError', '');
+            showInlineError('registerGeneralError', '');
 
             const nome = document.getElementById('registerName').value.trim();
             const email = document.getElementById('registerEmail').value.trim();
@@ -219,7 +247,11 @@ tailwind.config = {
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    showToast(dados.mensagem || 'Não foi possível criar a conta.');
+                    if (resposta.status === 409) {
+                        showInlineError('registerEmailError', dados.mensagem || 'Este e-mail já está cadastrado.');
+                    } else {
+                        showInlineError('registerGeneralError', dados.mensagem || 'Não foi possível criar a conta.');
+                    }
                     return;
                 }
 

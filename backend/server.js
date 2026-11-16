@@ -96,13 +96,13 @@ app.post('/api/auth/login', async (req, res) => {
         );
 
         if (usuarios.length === 0) {
-            return res.status(401).json({ mensagem: 'E-mail ou senha incorretos.' });
+            return res.status(404).json({ mensagem: 'Este e-mail não está cadastrado.' });
         }
 
         const usuario = usuarios[0];
         const senhaValida = await bcrypt.compare(String(senha), usuario.senha);
         if (!senhaValida) {
-            return res.status(401).json({ mensagem: 'E-mail ou senha incorretos.' });
+            return res.status(401).json({ mensagem: 'A senha informada está incorreta.' });
         }
 
         // Evita fixação de sessão: gera um identificador novo após autenticar.
